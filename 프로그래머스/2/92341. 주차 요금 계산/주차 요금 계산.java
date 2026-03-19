@@ -1,74 +1,65 @@
-import java.io.*;
 import java.util.*;
 
 class Solution {
-    
-    public static int parseTime(String time){
-        
-        String[] parseTime = time.split(":");
-        int hour = Integer.parseInt(parseTime[0]);
-        int minute = Integer.parseInt(parseTime[1]);
-        
-        return hour*60 + minute;
-    }
-    
     public int[] solution(int[] fees, String[] records) {
         
-        int baseTime = fees[0];
-        int baseFee = fees[1];
+        // 기록용 Map<>
+        Map<String, Integer> map = new HashMap<>();
+        
+        // 총 누적 시간 기록 Map<>
+        Map<String, Integer> result = new HashMap<>();
+            
+        int defaultTime = fees[0];
+        int defaultFee = fees[1];
         int partTime = fees[2];
         int partFee = fees[3];
         
-        Map<String, Integer> totalMap = new TreeMap<>();
-        Map<String, Integer> inMap = new HashMap<>();
-        
-        for(String s : records){
+        // Map<>에 값 넣기
+        for(int i = 0; i < records.length; i++){
             
-            String[] input = s.split(" ");
+            int HH = Integer.parseInt(records[i].substring(0, 2));
+            int MM = Integer.parseInt(records[i].substring(3, 5));
+            int curTime = HH * 60 + MM;
             
-            int curTime = parseTime(input[0]);
-            String carNumber = input[1];
-            String value = input[2];
+            String carNumber = records[i].substring(6, 10);
+            String value = records[i].substring(11);
             
             if(value.equals("IN")){
-                inMap.put(carNumber, curTime);
-            }else{
-                
-                int inTime = inMap.remove(carNumber);
-                
-                int parkingTime = curTime - inTime;
-                
-                totalMap.put(carNumber, totalMap.getOrDefault(carNumber, 0) + parkingTime);
+                map.put(carNumber, curTime);
+            }else if(value.equals("OUT")){
+                int inTime = map.get(carNumber);
+                result.put(carNumber, result.getOrDefault(carNumber, 0) + (curTime - inTime));
+                map.remove(carNumber);
             }
         }
         
-        int lastTime = parseTime("23:59");
-        // 출차 기록이 없는 차량 추출
-        for(Map.Entry<String, Integer> entry : inMap.entrySet()){
-            String carNumber = entry.getKey();
-            int inTime = entry.getValue();
+        // 남아있는 Map<> 값 처리
+        int lastTime = 23 * 60 + 59;
+        for(Map.Entry<String, Integer> entry : map.entrySet()){
+            result.put(entry.getKey(), result.getOrDefault(entry.getKey(), 0) + (lastTime - entry.getValue()));
+        }
+        
+        // 정답 형태로 변환 + 정산
+        int index = 0;
+        int[][] resultFees = new int[result.size()][2];
+        for(Map.Entry<String, Integer> entry : result.entrySet()){
             
-            int parkingTime = lastTime - inTime;
-            totalMap.put(carNumber, totalMap.getOrDefault(carNumber, 0) + parkingTime);
-        }
-        
-        int[] answer = new int[totalMap.size()];
-        int i = 0;
-        
-        for (int totalTime : totalMap.values()) {
-            // 기본 시간 이내인 경우
-            if (totalTime <= baseTime) {
-                answer[i] = baseFee;
-            } else {
-                // 기본 시간 초과인 경우
-                int overTime = totalTime - baseTime;
-                // 초과 요금 계산 (올림 처리가 중요)
-                int overFee = (int) Math.ceil((double) overTime / partTime) * partFee;
-                answer[i] = baseFee + overFee;
+            resultFees[index][0] = Integer.parseInt(entry.getKey());
+            
+            if(entry.getValue() <= defaultTime){
+                resultFees[index][1] = defaultFee;
+            }else{
+                resultFees[index][1] = defaultFee + (int) Math.ceil((double) (entry.getValue() - defaultTime) / partTime) * partFee;
             }
-            i++;
+            index++;
         }
         
+        Arrays.sort(resultFees, Comparator.comparingInt((int[] a) -> a[0]));
+        
+        int[] answer = new int[result.size()];
+        for(int i = 0; i < answer.length; i++){
+            answer[i] = resultFees[i][1];
+        }
         return answer;
     }
 }
