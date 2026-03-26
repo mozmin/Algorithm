@@ -28,7 +28,6 @@ class Solution {
             
             boolean[] visited = new boolean[n];
             int count = dfs(list, from, visited);
-            System.out.println(count+"|");
                 
             diff = Math.abs(count - (n - count));
             min = Math.min(min, diff);
