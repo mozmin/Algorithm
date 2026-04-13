@@ -19,7 +19,7 @@ class Solution {
         for(int i = 0; i < s.length(); i++){
             char c = s.charAt(i);
             
-            if (Character.isDigit(c)) {
+            if (c-'0' >= 0 && c-'0' <= 9) {
                 list.add(String.valueOf(c));
             } else {
                 ch += c;
