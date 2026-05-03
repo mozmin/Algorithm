@@ -5,14 +5,11 @@ class Solution {
         ArrayList<Integer> result = new ArrayList<>();
         
         for(int[] command: commands){
-            ArrayList<Integer> cut = new ArrayList<>();
-            for(int i = command[0]; i <= command[1]; i++){
-                cut.add(array[i-1]);
-            }
-            int[] split = cut.stream().mapToInt(Integer::intValue).toArray();
+            int[] cut = new int[command[1] - command[0] + 1];
+            for(int a = command[0]-1; a <= command[1]-1; a++) cut[a-(command[0]-1)] = array[a];
             
-            Arrays.sort(split);
-            result.add(split[command[2]-1]);
+            Arrays.sort(cut);
+            result.add(cut[command[2]-1]);
         }
         
         return result.stream().mapToInt(Integer::intValue).toArray();
