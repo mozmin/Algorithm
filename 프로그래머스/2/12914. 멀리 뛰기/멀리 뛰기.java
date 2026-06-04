@@ -3,6 +3,8 @@ class Solution {
     public long solution(int n) {
         
         if(n == 1) return 1;
+        else if(n == 2) return 2;
+        
         long result = 0;
         
         // 점화식: dp(n) = dp(n-1) + dp(n-2)
