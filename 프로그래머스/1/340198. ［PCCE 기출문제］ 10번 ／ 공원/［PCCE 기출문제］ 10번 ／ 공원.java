@@ -7,43 +7,43 @@ class Solution {
     public int solution(int[] mats, String[][] park) {
         
         answer = -1;
+        Arrays.sort(mats);
+        int[] newMat = new int[mats.length];
         
-        int[] newMat = Arrays.stream(mats).boxed()
-            .sorted(Comparator.reverseOrder())
-            .mapToInt(i -> i).toArray();
+        for(int i = 0; i < mats.length; i++){
+            newMat[i] = mats[mats.length-i-1];
+        }
         
         for(int m : newMat){
-        
-            for(int i = 0; i<park.length; i++){
-            for(int j = 0; j < park[0].length; j++){
+            for(int i = 0; i < park.length; i++){
+            
+                for(int j = 0; j < park[0].length; j++){
                 
-                if(park[i][j].equals("-1") && findMat(i, j, m, park)) return answer;
+                    // 만약 -1이라면
+                    if(park[i][j].equals("-1")){
+                        check(i, j, park, m);
+                    }
+                    
+                    if(answer != -1) return answer;
+                }
             }
         }
-            
-        }
-        
         return answer;
+        
     }
     
-    public boolean findMat(int i, int j, int m, String[][] park){
+    public void check(int i, int j, String[][] park, int m){
         
-            
-        int count = 0;
-        outer: for(int x = i; x < i+m; x++){
-            for(int y = j; y < j+m; y++){
-                    
-                if(x < park.length && y < park[0].length && park[x][y].equals("-1")) count++;
-                else break outer;
+        for(int a = i; a < i+m; a++){
+            for(int b = j; b < j+m; b++){
+                
+                if(a >= park.length || b >= park[0].length || !park[a][b].equals("-1")) return;
+                
             }
         }
-            
-        if(count == m*m){
-            answer = m;
-            return true;
-        }
         
-        return false;
+        answer = m;
+        
     }
     
 }
