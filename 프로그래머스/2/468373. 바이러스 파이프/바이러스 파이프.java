@@ -7,69 +7,67 @@ class Solution {
         
         max = Integer.MIN_VALUE;
         
-        // 노드 초기화
+        // 초기화
         ArrayList<int[]>[] nodes = new ArrayList[n+1];
-        for(int i = 0; i <= n; i++){
+        for(int i = 1; i <= n; i++){
             nodes[i] = new ArrayList<>();
         }
         
+        // nodes[from] = new int[]{to, pipe}
+        // nodes[to] = new int[]{from, pipe}
         for(int[] edge : edges){
-            int u = edge[0];
-            int v = edge[1];
-
-            nodes[u].add(new int[]{v, edge[2]});
-            nodes[v].add(new int[]{u, edge[2]});
+            nodes[edge[0]].add(new int[]{edge[1], edge[2]});
+            nodes[edge[1]].add(new int[]{edge[0], edge[2]});
         }
         
-        // 감염 여부 및 방문 처리용
+        // 감염여부 및 방문 처리용
         boolean[] visited = new boolean[n+1];
         visited[infection] = true;
         
-        // 분기 시작
-        dfs(n, nodes, visited, 0, k);
+        dfs(n, nodes, visited, k);
         
         return max;
     }
 
-    public void dfs(int n, ArrayList<int[]>[] nodes, boolean[] visited, int count, int k){
+    public void dfs(int n, ArrayList<int[]>[] nodes, boolean[] visited, int k){
         
-        // 만약 k만큼 돌았다면
-        if(count >= k){
-            int result = 0;
-            for(boolean v : visited){
-                if(v) result++;
+        // 만약 k 횟수를 모두 소진한다면
+        if(k <= 0){
+            int count = 0;
+            
+            for(int i = 1; i <= n; i++){
+                if(visited[i]) count++;
             }
             
-            max = Math.max(max, result);
-            
+            max = Math.max(max, count);
             return;
         }
         
-        // 경우의 수 (A, B, C) 분기점
+        // 분기처리 A, B C
         for(int i = 1; i <= 3; i++){
             
-            // 새 분기점 전용 visited 배열
-            boolean[] copy = new boolean[n+1];
+            // 깊은 복사를 위해 visited 배열 복사
+            boolean[] copyVisited = new boolean[n+1];
             for(int j = 1; j <= n; j++){
-                copy[j] = visited[j];
+                copyVisited[j] = visited[j];
             }
             
-            // pipe 확인, 얕은 복사 활용
-            bfs(i, nodes, copy);
+            // 먼저 bfs()로 파이프 작업을 한 후 다음 dfs()로 분기처리
+            bfs(i, nodes, copyVisited);
             
-            // 다음 분기점, 얕은 복사 활용
-            dfs(n, nodes, copy, count+1, k);
+            dfs(n, nodes, copyVisited, k-1);
+
         }
         
         return;
-        
     }
    
     public void bfs(int pipe, ArrayList<int[]>[] nodes, boolean[] visited){
         
+        // 큐 선언
         Deque<Integer> q = new ArrayDeque<>();
         
-        // 감염된 노드들 큐에 삽입
+        // 감염된 노드들 모두 큐에 offer
         for(int i = 1; i < visited.length; i++){
             if(visited[i]) q.offer(i);
         }
@@ -78,24 +76,22 @@ class Solution {
             
             int curNode = q.poll();
             
-            // curNode 인접 리스트 확인
-            for(int[] n : nodes[curNode]){
+            // 현재 방문중인 노드와 연결된 노드들 확인
+            for(int[] node : nodes[curNode]){
                 
-                int nxtNode = n[0];
-                int connectedPipe = n[1];
-                
-                // 만약 nxtNode 감염이 안된 상태(방문 상태)이고, connectedPipe가 열려있다면    
-                if(!visited[nxtNode] && connectedPipe == pipe){
-                    
-                    // 큐에 추가 후 감염(방문 처리)
-                    q.offer(nxtNode);
-                    visited[nxtNode] = true;
+                // 만약 연결된 노드가 감염이 안되어있고, pipe가 열려있다면
+                if(!visited[node[0]] && node[1] == pipe){
+                    q.offer(node[0]);
+                    visited[node[0]] = true;
                 }
             }
         }
         
         return;
+        
     }
+        
+        
     
 }
 
