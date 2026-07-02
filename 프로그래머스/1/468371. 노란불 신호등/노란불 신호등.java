@@ -17,14 +17,6 @@ class Solution {
             addListValue(list[i], signals[i][2], "R");
         }
         
-        for(int i = 0; i < signals.length; i++){
-            for(int j = 0; j < list[i].size(); j++){
-                System.out.print(list[i].get(j) + "|");
-            }    
-            
-            System.out.println();
-        }
-        
         // 신호등 시뮬레이션
         int count;
         for(int i = 0; i < Math.pow(20, signals.length); i++){
@@ -60,4 +52,5 @@ class Solution {
             list.add(value);
         }
     }
+    
 }
