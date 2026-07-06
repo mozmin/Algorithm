@@ -4,53 +4,36 @@ class Solution {
     public int solution(int[][] signals) {
         int answer = 0;
         
-        // 신호등 배열 초기화
-        ArrayList<String>[] list = new ArrayList[signals.length];
-        
-        for(int i = 0; i < signals.length; i++){
-            list[i] = new ArrayList<>();
-        }
-        
-        for(int i = 0; i < signals.length; i++){
-            addListValue(list[i], signals[i][0], "G");
-            addListValue(list[i], signals[i][1], "Y");
-            addListValue(list[i], signals[i][2], "R");
-        }
-        
-        // 신호등 시뮬레이션
-        int count;
-        for(int i = 0; i < Math.pow(20, signals.length); i++){
+        // 1초부터 시작
+        for(int i = 1; i <= Math.pow(20, signals.length); i++){
             
-            count = 0;
-            for(ArrayList<String> l : list){
-                if(isYellow(l, i)) count++;
-            }    
+            int count = 0;
             
-            if(count == signals.length){
-                answer = i + 1;
+            for(int j = 0; j < signals.length; j++){
+                if(isYellow(signals, j, i)) count++;
+            }
+            
+            if(count >= signals.length){
+                answer = i;
                 break;
             }
         }
         
-        if(answer == 0) return -1;
+        return answer == 0 ? -1 : answer;
         
-        return answer;
     }
     
-    public boolean isYellow(ArrayList<String> list, int time){
+    public boolean isYellow(int[][] signals, int index, int time){
         
-        int index = time % list.size();
+        int cycle = signals[index][0] + signals[index][1] + signals[index][2];
         
-        if(list.get(index).equals("Y")) return true;
+        int rest = time % cycle;
+        
+        if(signals[index][0] < rest && rest <= (signals[index][0] + signals[index][1])){
+            return true;
+        }
         
         return false;
-    }
-    
-    public void addListValue(ArrayList<String> list, int count, String value){
-        
-        for(int i = 0; i < count; i++){
-            list.add(value);
-        }
     }
     
 }
