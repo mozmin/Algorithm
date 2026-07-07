@@ -1,77 +1,95 @@
 import java.util.*;
 
 class Solution {
+    
+    int answer;
     public int solution(int m, int n, String[] board) {
-        int answer = 0;
+        answer = 0;
         
         // 배열 초기화
-        String[][] map = new String[m][n];
-        for(int i = 0; i < map.length; i++){
-            for(int j = 0; j < map[0].length; j++){
-                map[i][j] = String.valueOf(board[i].charAt(j));
+        String[][] arr = new String[m][n];
+        for(int i = 0; i < m; i++){
+            
+            String split = board[i];
+            for(int j = 0; j < n; j++){
+                arr[i][j] = String.valueOf(split.charAt(j));
             }
         }
         
-        // 4개인 그룹 찾기
-        // 2x2 이므로 length-1 만큼만 탐색
-        ArrayList<int[]> list = new ArrayList<>();
+        ArrayList<int[]> removed = new ArrayList<>();
         
-        do{
-            list.clear();
+        // 지울 블록이 없을 때까지 반복
+        while(true){
             
-            for(int i = 0; i < map.length-1; i++){
-                for(int j = 0; j < map[0].length-1; j++){
-                    
-                    String value = map[i][j];
-                    if(!value.equals("")
-                      && map[i][j+1].equals(value)
-                      && map[i+1][j].equals(value)
-                      && map[i+1][j+1].equals(value)){
-                        list.add(new int[]{i, j});
-                        list.add(new int[]{i, j+1});
-                        list.add(new int[]{i+1, j});
-                        list.add(new int[]{i+1, j+1});
+            removed.clear();
+            boolean isBreak = false;
+            
+            // m-1 x n-1 까지만 반복
+            for(int i = 0; i < m-1; i++){
+                for(int j = 0; j < n-1; j++){
+                    if(check(i, j, arr)){
+                        removed.add(new int[]{i, j});
+                        removed.add(new int[]{i, j+1});
+                        removed.add(new int[]{i+1, j});
+                        removed.add(new int[]{i+1, j+1});
+                        isBreak = true;
                     }
                 }
             }
             
+            
+            if(!isBreak) break;
+            
             // 4개인 그룹 카운트 및 제거
-            for(int[] l : list){
-                int y = l[0];
-                int x = l[1];
+            for(int[] r : removed){
+                int y = r[0];
+                int x = r[1];
                 
-                if(!map[y][x].equals("")){
-                    map[y][x] = "";
+                if(!arr[y][x].equals("")){
+                    arr[y][x] = "";
                     answer++;
                 }
             }
             
-            // 아래 블록 떨구기
-            drop(m, n, map);
             
-        }while(!list.isEmpty());
+            // 지울 블록들 일괄 삭제
+            drop(arr);
+        }
         
         return answer;
     }
     
-    public void drop(int m, int n, String[][] map){
+    private boolean check(int y, int x, String[][] arr){
         
-        // 아래부터 탐색
-        for(int i = m-1; i >= 0; i--){
-            for(int j = n-1; j >= 0; j--){
-                
-                // 만약 빈 곳이라면 위에 값을 현재 위치로 이동
-                if(map[i][j].equals("")){
-                    int nextY = i-1;
-                    while(nextY >= 0){
-                        if(nextY >=0 && !map[nextY][j].equals("")){
-                            map[i][j] = map[nextY][j];
-                            map[nextY][j] = "";
+        String base = arr[y][x];
+        
+        if(base == "") return false;
+        
+        if(arr[y+1][x].equals(base) && arr[y][x+1].equals(base) && arr[y+1][x+1].equals(base)) return true;
+        
+        return false;
+        
+    }
+    
+    private void drop(String[][] arr){
+    
+        // 블록 재정렬
+        for(int i = arr.length-1; i >= 0; i--){
+            for(int j = arr[0].length-1; j >= 0; j--){
+                if(arr[i][j] == ""){
+                    
+                    int index = i-1;
+                    
+                    while(index >= 0){
+                        if(index >= 0 && arr[index][j] != ""){
+                            arr[i][j] = arr[index][j];
+                            arr[index][j] = "";
                             break;
                         }
-                        nextY--;
+                        index--;
                     }
                 }
+                
             }
         }
         
@@ -79,4 +97,7 @@ class Solution {
     
     
 }
+
+
+
 
